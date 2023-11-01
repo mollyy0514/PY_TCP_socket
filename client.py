@@ -22,6 +22,7 @@
 
 import socket
 import time
+import os
 
 HEADER = 64
 PORT = 5050
@@ -33,20 +34,32 @@ DISCONNECT_MESSAGE = "!DISCONNECT"
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect(ADDR)
 
-def send(msg):
-    message = msg.encode(FORMAT)
-    msg_length = len(message)
-    send_length = str(msg_length).encode(FORMAT)
-    send_length += b' ' * (HEADER - len(send_length))
-    # client.send(send_length)
-    client.send(message)
-    # print(client.recv(2048).decode(FORMAT))
+# def send(msg):
+#     message = msg.encode(FORMAT)
+#     msg_length = len(message)
+#     message += os.urandom(250 - msg_length)
+#     # send_length = str(msg_length).encode(FORMAT)
+#     # send_length += b' ' * (HEADER - len(send_length))
+#     # client.send(send_length)
+#     client.send(message)
+#     # print(client.recv(2048).decode(FORMAT))
 
 start_time = time.time()  # Record the start time
 duration = 5 * 60  # 5 minutes in seconds
 
+packet_length = 250
+euler = 271828
+pi = 31415926
 while time.time() - start_time <= duration:
-    send("Hello world"+str(time.time() - start_time))
+    t = time.time()
+    datetimedec = int(t)
+    microsec = int((t - int(t))*1000000)
+
+    redundant = os.urandom(packet_length-4*4)
+    outdata = euler.to_bytes(4, 'big') + pi.to_bytes(4, 'big') + datetimedec.to_bytes(4, 'big') + microsec.to_bytes(4, 'big') + redundant
+    client.send(outdata)
+    # send("Hello world"+str(time.time() - start_time))
     time.sleep(0.5)
-send(DISCONNECT_MESSAGE)
+
+client.send(DISCONNECT_MESSAGE)
 print("five minutes done.")

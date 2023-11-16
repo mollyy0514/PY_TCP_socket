@@ -1,35 +1,30 @@
-# import socket
-
-# s = socket.socket()
-
-# host = "0.0.0.0"
-# port = 12345
-
-# # connect to the server on local computer
-# s.connect((host, port))
-
-# # receive data from the server and decoding to get the string.
-# print (s.recv(1024).decode())
-
-# while True:
-#     for i in range(10):
-#         s.send(str(i).encode())
-#         data = s.recv(1024)
-#         print(f"server send: {data}")
-
-# # close the connection
-# s.close() 
-
 import socket
 import time
 import os
+import subprocess
+from datetime import date
 
 HEADER = 64
 PORT = 5050
-SERVER = '192.168.1.78'
+# SERVER = '192.168.1.78'
+SERVER = '127.0.0.1'
 ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
-DISCONNECT_MESSAGE = "!DISCONNECT"
+DISCONNECT_MESSAGE = b"!DISCONNECT"
+
+def start_tcpdump():
+    today = date.today()
+    today = today.strftime("%Y%m%d")
+    filepath = f'./data/capturetcp_c_{today}.pcap'
+    command = f'sudo tcpdump port {PORT} -w {filepath}'
+    p = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
+    return p
+
+def close_tcpdump(p):
+    p.send_signal(subprocess.signal.SIGTERM)
+
+p = start_tcpdump()
+time.sleep(10)
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect(ADDR)
@@ -44,7 +39,6 @@ while time.time() - start_time <= duration:
     t = time.time()
     datetimedec = int(t)
     microsec = int((t - int(t))*1000000)
-
     redundant = os.urandom(packet_length-4*4)
     outdata = euler.to_bytes(4, 'big') + pi.to_bytes(4, 'big') + datetimedec.to_bytes(4, 'big') + microsec.to_bytes(4, 'big') + redundant
     client.send(outdata)
@@ -52,3 +46,5 @@ while time.time() - start_time <= duration:
 
 client.send(DISCONNECT_MESSAGE)
 print("five minutes done.")
+
+close_tcpdump(p)

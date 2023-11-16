@@ -1,5 +1,7 @@
 import socket
 import threading
+import subprocess
+from datetime import date
 
 HEADER = 64
 PORT = 5050
@@ -7,12 +9,25 @@ PORT = 5050
 SERVER = '0.0.0.0'
 ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
-DISCONNECT_MESSAGE = "!DISCONNECT"
+DISCONNECT_MESSAGE = b"!DISCONNECT"
+
+def start_tcpdump():
+    today = date.today()
+    today = today.strftime("%Y%m%d")
+    filepath = f'./data/capturetcp_s_{today}.pcap'
+    command = f'sudo tcpdump port {PORT} -w {filepath}'
+    p = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
+    return p
+
+def close_tcpdump(p):
+    p.send_signal(subprocess.signal.SIGTERM)
+
+p = start_tcpdump()
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(ADDR)
 
-def handle_client(conn, addr):
+def handle_client(conn, addr, p):
     print(f"[NEW CONNECTION] {addr} connected.")
 
     connected = True
@@ -31,19 +46,19 @@ def handle_client(conn, addr):
         print(f"[{addr}] {ts}")
         # conn.send("Msg received".encode(FORMAT))
     conn.close()
+    close_tcpdump(p)
 
-
-def start():
+def start(p):
     server.listen()
     print(f"[LISTENING] Server is listening on {SERVER}")
     while True:
         conn, addr = server.accept()
         # when a new connection occurs, we're going to pass that connection to hadle_client
-        thread = threading.Thread(target=handle_client, args=(conn, addr))
+        thread = threading.Thread(target=handle_client, args=(conn, addr, p))
         thread.start()
         # print how many threads is active on this process, which reoresent the amount of clients connected, 
         # there's a thread always running to listen
         print(f"[ACTIVE CONNECTIONS] {threading.activeCount() - 1}")
 
 print("[STARTING] server is starting...")
-start()
+start(p)

@@ -6,8 +6,8 @@ from datetime import date
 
 HEADER = 64
 PORT = 5050
-# SERVER = '192.168.1.78'
-SERVER = '127.0.0.1'
+SERVER = '192.168.1.78'
+# SERVER = '127.0.0.1'
 ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
 DISCONNECT_MESSAGE = b"!DISCONNECT"
@@ -24,7 +24,7 @@ def close_tcpdump(p):
     p.send_signal(subprocess.signal.SIGTERM)
 
 p = start_tcpdump()
-time.sleep(10)
+# time.sleep(10)
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect(ADDR)

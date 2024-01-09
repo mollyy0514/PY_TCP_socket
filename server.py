@@ -4,7 +4,7 @@ import subprocess
 from datetime import date
 
 HEADER = 64
-PORT = 5050
+PORT = 4242
 # SERVER = socket.gethostbyname(socket.gethostname()
 SERVER = '0.0.0.0'
 ADDR = (SERVER, PORT)

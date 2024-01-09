@@ -5,7 +5,8 @@ import subprocess
 from datetime import date
 
 HEADER = 64
-PORT = 5050
+PORT = 4242
+# SERVER = '140.112.20.183'
 SERVER = '192.168.1.78'
 # SERVER = '127.0.0.1'
 ADDR = (SERVER, PORT)
@@ -16,7 +17,7 @@ def start_tcpdump():
     today = date.today()
     today = today.strftime("%Y%m%d")
     filepath = f'./data/capturetcp_c_{today}.pcap'
-    command = f'sudo tcpdump port {PORT} -w {filepath}'
+    command = f'echo molly900514 | sudo -S tcpdump port {PORT} -w {filepath}'
     p = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, shell=True)
     return p
 

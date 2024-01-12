@@ -5,7 +5,7 @@ import subprocess
 from datetime import date
 
 HEADER = 64
-PORT = 4242
+PORT = 5050
 # SERVER = '140.112.20.183'
 SERVER = '192.168.1.78'
 # SERVER = '127.0.0.1'
